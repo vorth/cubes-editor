@@ -177,13 +177,14 @@ export function computeBrinkSkeleton(cubes) {
 
         while (currVertex !== startVertex) {
           const candidates = adjacency.get(currVertex);
-          const nextEdge = candidates.find((ei) => !visitedEdges.has(ei));
+          const nextEdge = candidates ? candidates.find((ei) => !visitedEdges.has(ei)) : undefined;
+          if (nextEdge === undefined) break;
           visitedEdges.add(nextEdge);
           cycleEdgeIdxs.push(nextEdge);
           currVertex = otherEndpoint(edges[nextEdge], currVertex);
         }
 
-        if (cycleEdgeIdxs.length >= 3) faces.push(cycleEdgeIdxs);
+        if (currVertex === startVertex && cycleEdgeIdxs.length >= 3) faces.push(cycleEdgeIdxs);
       }
     }
   }

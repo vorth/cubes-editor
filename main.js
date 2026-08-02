@@ -427,6 +427,7 @@ async function main() {
   // face by the parity invariants — perpendicular crossing faces aren't merged.
   function connectedFace(axis, startId) {
     const faces = boundaryFaceInfoByAxis[axis];
+    if (!faces || !faces[startId]) return null;
     const coord = Math.round(faces[startId].center[axis]);
     const [ua, ub] = [0, 1, 2].filter((a) => a !== axis);
 
@@ -753,8 +754,9 @@ async function main() {
   function applyLoadedState(state) {
     if (!state) return;
 
-    for (const { x, y, z } of [...positions]) removeVoxel(x, y, z);
-    for (const { x, y, z } of state.positions) addVoxel(x, y, z);
+    for (const { x, y, z } of [...positions]) removeVoxelRaw(x, y, z);
+    for (const { x, y, z } of state.positions) addVoxelRaw(x, y, z);
+    updateBrinkSkeleton();
 
     const radio = [...renderModeInputs].find((input) => input.value === state.renderMode);
     if (radio) radio.checked = true;
@@ -1003,8 +1005,9 @@ async function main() {
   }
 
   function reset() {
-    for (const { x, y, z } of [...positions]) removeVoxel(x, y, z);
-    addVoxel(0, 0, 0);
+    for (const { x, y, z } of [...positions]) removeVoxelRaw(x, y, z);
+    addVoxelRaw(0, 0, 0);
+    updateBrinkSkeleton();
     updateStatus(mode);
   }
 
@@ -1116,7 +1119,8 @@ async function main() {
   setRenderMode(initialRenderMode);
 
   if (saved?.positions?.length) {
-    for (const { x, y, z } of saved.positions) addVoxel(x, y, z);
+    for (const { x, y, z } of saved.positions) addVoxelRaw(x, y, z);
+    updateBrinkSkeleton();
   } else {
     addVoxel(0, 0, 0);
   }
